@@ -56,42 +56,127 @@ function renderLanding() {
   refreshIcons();
 }
 
+function loggedOutViewFor(hash) {
+  if (hash === '#/login') return 'login';
+  if (hash === '#/register') return 'register';
+  return 'landing';
+}
+
+function renderLoggedOutView(view) {
+  if (view === 'login') renderLogin();
+  else if (view === 'register') renderRegister();
+  else renderLanding();
+}
+
 function renderLoggedOutRoute() {
-  if (location.hash === '#/login') {
-    renderLogin();
-  } else {
-    renderLanding();
-  }
+  renderLoggedOutView(loggedOutViewFor(location.hash));
 }
 
 // ---------- Login screen ----------
+const LOGIN_FEATURES = [
+  'ติดตาม Subscription อัตโนมัติ',
+  'แจ้งเตือนก่อนครบกำหนด',
+  'สรุปรายจ่ายรายเดือน',
+];
+
 function renderLogin() {
   loggedOutView = 'login';
   app.innerHTML = `
-    <div class="login-screen">
-      <div class="login-card">
-        <a href="#/" class="btn-text" style="align-self:flex-start;">← กลับหน้าหลัก</a>
-        <img src="assets/logo.png" alt="Subman!" />
-        <h1>เข้าสู่ระบบ</h1>
-        <form id="login-form" novalidate>
-          <div class="field">
-            <label class="field__label" for="email">อีเมล</label>
-            <input class="input" type="email" id="email" name="email" required autocomplete="username" />
+    <div class="login-split">
+      <div class="login-hero">
+        <a href="#/" class="login-hero__brand">
+          <img src="assets/logo-full.png" alt="Subman!" />
+        </a>
+        <div class="login-hero__mascot">
+          <img src="assets/logo-full.png" alt="Subman!" />
+        </div>
+        <div class="login-hero__copy">
+          <h2 class="login-hero__title">ควบคุมทุก Subscription ในที่เดียว</h2>
+          <p class="login-hero__desc">ติดตามรายจ่าย วางแผนงบประมาณ รู้ทุก Subscription ของคุณ</p>
+          <ul class="login-hero__features">
+            ${LOGIN_FEATURES.map(f => `
+              <li><span class="login-hero__check"><i data-lucide="check"></i></span><span>${f}</span></li>
+            `).join('')}
+          </ul>
+          <div class="login-hero__trust">
+            <div class="login-hero__avatars">
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+            </div>
+            <span>ผู้ใช้งานกว่า 10,000+ คนไว้วางใจ</span>
           </div>
-          <div class="field">
-            <label class="field__label" for="password">รหัสผ่าน</label>
-            <input class="input" type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+      </div>
+      <div class="login-panel">
+        <div class="login-card">
+          <div class="login-card__header">
+            <div class="login-card__logo">
+              <img src="assets/logo-full.png" alt="Subman!" />
+            </div>
+            <h1>ยินดีต้อนรับกลับ</h1>
+            <p>เข้าสู่ระบบเพื่อจัดการ Subscription ของคุณ</p>
           </div>
-          <p class="field__error" id="login-error" style="display:none;"></p>
-          <button type="submit" class="btn-primary" id="login-submit" style="width:100%;">เข้าสู่ระบบ</button>
-        </form>
+          <button type="button" class="login-google-btn" id="google-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v2.98h3.87c2.27-2.09 3.58-5.17 3.58-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.87-2.98c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.07A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.31A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.58.38-2.31V6.62H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.38l4-3.07z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.62l4 3.07C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            <span>เข้าสู่ระบบด้วย Google</span>
+          </button>
+          <div class="login-divider"><span>หรือ</span></div>
+          <form id="login-form" novalidate>
+            <div class="field">
+              <label class="field__label" for="email">อีเมล</label>
+              <input class="input login-input" type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="username" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="password">รหัสผ่าน</label>
+              <div class="login-password-field">
+                <input class="input login-input" type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+                <button type="button" class="login-password-toggle" id="password-toggle" aria-label="แสดงรหัสผ่าน">
+                  <i data-lucide="eye-off"></i>
+                </button>
+              </div>
+            </div>
+            <p class="field__error" id="login-error" style="display:none;"></p>
+            <div class="login-options">
+              <label class="login-checkbox">
+                <input type="checkbox" />
+                <span>จดจำฉัน</span>
+              </label>
+              <button type="button" class="btn-text" id="forgot-btn">ลืมรหัสผ่าน?</button>
+            </div>
+            <button type="submit" class="btn-primary login-submit" id="login-submit">เข้าสู่ระบบ</button>
+          </form>
+          <p class="login-signup">
+            ยังไม่มีบัญชี?
+            <a href="#/register" class="login-signup__link">สมัครสมาชิก</a>
+          </p>
+          <a href="#/" class="btn-text login-back">← กลับหน้าหลัก</a>
+        </div>
       </div>
     </div>
   `;
+  refreshIcons();
 
   const form = document.getElementById('login-form');
   const errorEl = document.getElementById('login-error');
   const submitBtn = document.getElementById('login-submit');
+  const passwordInput = document.getElementById('password');
+  const passwordToggle = document.getElementById('password-toggle');
+
+  passwordToggle.addEventListener('click', () => {
+    const showing = passwordInput.type === 'text';
+    passwordInput.type = showing ? 'password' : 'text';
+    passwordToggle.innerHTML = `<i data-lucide="${showing ? 'eye-off' : 'eye'}"></i>`;
+    refreshIcons();
+  });
+
+  document.getElementById('google-btn').addEventListener('click', () => {
+    toast('เข้าสู่ระบบด้วย Google จะเปิดให้ใช้งานเร็วๆนี้');
+  });
+  document.getElementById('forgot-btn').addEventListener('click', () => {
+    toast('ฟีเจอร์นี้จะเปิดให้ใช้งานเร็วๆนี้');
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -107,6 +192,125 @@ function renderLogin() {
       submitBtn.disabled = false;
       submitBtn.textContent = 'เข้าสู่ระบบ';
     }
+  });
+}
+
+// ---------- Register screen ----------
+function renderRegister() {
+  loggedOutView = 'register';
+  app.innerHTML = `
+    <div class="login-split">
+      <div class="login-hero">
+        <a href="#/" class="login-hero__brand">
+          <img src="assets/logo-full.png" alt="Subman!" />
+        </a>
+        <div class="login-hero__mascot">
+          <img src="assets/logo-full.png" alt="Subman!" />
+        </div>
+        <div class="login-hero__copy">
+          <h2 class="login-hero__title">สมัครสมาชิกวันนี้ เริ่มต้นชีวิตที่จัดการง่ายขึ้น</h2>
+          <p class="login-hero__desc">ใช้ชีวิตให้สนุกไปกับ Subscription ของคุณ โดยไม่ต้องกังวลเรื่องค่าใช้จ่ายแฝง</p>
+          <ul class="login-hero__features">
+            ${LOGIN_FEATURES.map(f => `
+              <li><span class="login-hero__check"><i data-lucide="check"></i></span><span>${f}</span></li>
+            `).join('')}
+          </ul>
+          <div class="login-hero__trust">
+            <div class="login-hero__avatars">
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+              <span class="login-hero__avatar"><i data-lucide="user"></i></span>
+            </div>
+            <span>ผู้ใช้งานกว่า 10,000+ คนไว้วางใจ</span>
+          </div>
+        </div>
+      </div>
+      <div class="login-panel">
+        <div class="login-card">
+          <div class="login-card__header">
+            <div class="login-card__logo">
+              <img src="assets/logo-full.png" alt="Subman!" />
+            </div>
+            <h1>สร้างบัญชีใหม่</h1>
+            <p>เข้าร่วมกับเราเพื่อจัดการ Subscription ของคุณ</p>
+          </div>
+          <button type="button" class="login-google-btn" id="google-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v2.98h3.87c2.27-2.09 3.58-5.17 3.58-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.87-2.98c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.07A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.31A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.58.38-2.31V6.62H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.38l4-3.07z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.62l4 3.07C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+            <span>ลงทะเบียนด้วย Google</span>
+          </button>
+          <div class="login-divider"><span>หรือ</span></div>
+          <form id="register-form" novalidate>
+            <div class="field">
+              <label class="field__label" for="fullname">ชื่อ-นามสกุล</label>
+              <input class="input login-input" type="text" id="fullname" name="fullname" placeholder="เช่น สมชาย ใจดี" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="reg-email">อีเมล</label>
+              <input class="input login-input" type="email" id="reg-email" name="email" placeholder="your@email.com" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="reg-password">รหัสผ่าน</label>
+              <div class="login-password-field">
+                <input class="input login-input" type="password" id="reg-password" name="password" placeholder="••••••••" required />
+                <button type="button" class="login-password-toggle" data-target="reg-password" aria-label="แสดงรหัสผ่าน">
+                  <i data-lucide="eye-off"></i>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="reg-password-confirm">ยืนยันรหัสผ่าน</label>
+              <div class="login-password-field">
+                <input class="input login-input" type="password" id="reg-password-confirm" name="passwordConfirm" placeholder="••••••••" required />
+                <button type="button" class="login-password-toggle" data-target="reg-password-confirm" aria-label="แสดงรหัสผ่าน">
+                  <i data-lucide="eye-off"></i>
+                </button>
+              </div>
+            </div>
+            <p class="field__error" id="register-error" style="display:none;"></p>
+            <label class="login-checkbox login-checkbox--terms">
+              <input type="checkbox" id="terms" required />
+              <span>ฉันยอมรับ <span class="login-terms-link">ข้อกำหนดการใช้งาน</span> และ <span class="login-terms-link">นโยบายความเป็นส่วนตัว</span></span>
+            </label>
+            <button type="submit" class="btn-primary login-submit" id="register-submit">สมัครสมาชิก</button>
+          </form>
+          <p class="login-signup">
+            มีบัญชีอยู่แล้ว?
+            <a href="#/login" class="login-signup__link">เข้าสู่ระบบ</a>
+          </p>
+          <a href="#/" class="btn-text login-back">← กลับหน้าหลัก</a>
+        </div>
+      </div>
+    </div>
+  `;
+  refreshIcons();
+
+  document.getElementById('google-btn').addEventListener('click', () => {
+    toast('ลงทะเบียนด้วย Google จะเปิดให้ใช้งานเร็วๆนี้');
+  });
+
+  document.querySelectorAll('.login-password-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      btn.innerHTML = `<i data-lucide="${showing ? 'eye-off' : 'eye'}"></i>`;
+      refreshIcons();
+    });
+  });
+
+  const errorEl = document.getElementById('register-error');
+  document.getElementById('register-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    errorEl.style.display = 'none';
+    const password = document.getElementById('reg-password').value;
+    const passwordConfirm = document.getElementById('reg-password-confirm').value;
+    if (password !== passwordConfirm) {
+      errorEl.textContent = 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
+      errorEl.style.display = 'block';
+      return;
+    }
+    toast('การสมัครสมาชิกจะเปิดให้ใช้งานเร็วๆนี้');
   });
 }
 
@@ -235,12 +439,8 @@ async function renderRoute(hash) {
 
 window.addEventListener('hashchange', () => {
   if (!store.session) {
-    const wantsLogin = location.hash === '#/login';
-    if (wantsLogin && loggedOutView !== 'login') {
-      renderLogin();
-    } else if (!wantsLogin && loggedOutView !== 'landing') {
-      renderLanding();
-    }
+    const view = loggedOutViewFor(location.hash);
+    if (view !== loggedOutView) renderLoggedOutView(view);
     return;
   }
   renderRoute(currentHash());
