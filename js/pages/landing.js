@@ -100,7 +100,7 @@ export function render(root) {
         </div>
         <div class="landing-hero__actions">
           <a class="landing-btn landing-btn--primary" href="#/register">เริ่มติดตามเลยตอนนี้</a>
-          <a class="landing-btn landing-btn--outline" href="#features">ชมวิดีโอสาธิต</a>
+          <button type="button" class="landing-btn landing-btn--outline" disabled>ชมวิดีโอสาธิต</button>
         </div>
         <div class="landing-hero__mockup">
           <img src="assets/hero-mockup.png" alt="ตัวอย่างแดชบอร์ด Subman!" />
@@ -230,28 +230,25 @@ export function render(root) {
           <div class="landing-footer__col">
             <p class="landing-footer__col-title">ผลิตภัณฑ์</p>
             <div class="landing-footer__links">
-              <a href="#">ลิงก์ 1</a><a href="#">ลิงก์ 2</a><a href="#">ลิงก์ 3</a>
+              <a href="#features">ฟีเจอร์</a><a href="#pricing">ราคา</a><a href="#testimonials">รีวิวจากผู้ใช้งาน</a>
             </div>
           </div>
           <div class="landing-footer__col">
             <p class="landing-footer__col-title">บริษัท</p>
             <div class="landing-footer__links">
-              <a href="#">ลิงก์ 1</a><a href="#">ลิงก์ 2</a><a href="#">ลิงก์ 3</a>
+              <a href="#">เกี่ยวกับเรา</a><a href="#">ร่วมงานกับเรา</a><a href="#footer">ติดต่อเรา</a>
             </div>
           </div>
           <div class="landing-footer__col">
             <p class="landing-footer__col-title">กฎหมาย</p>
             <div class="landing-footer__links">
-              <a href="#">ลิงก์ 1</a><a href="#">ลิงก์ 2</a><a href="#">ลิงก์ 3</a>
+              <a href="#">ข้อกำหนดการใช้งาน</a><a href="#">นโยบายความเป็นส่วนตัว</a><a href="#">นโยบายคุกกี้</a>
             </div>
           </div>
         </div>
         <hr class="landing-footer__divider" />
         <div class="landing-footer__bottom">
           <span class="landing-footer__copyright">© 2026 Subman! Co., Ltd. สงวนลิขสิทธิ์</span>
-          <div class="landing-footer__social">
-            <a href="#">Twitter</a><a href="#">Facebook</a><a href="#">Instagram</a>
-          </div>
         </div>
         <div class="landing-footer__watermark"><span>SUBMAN!</span></div>
       </footer>

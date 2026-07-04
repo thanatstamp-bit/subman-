@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Subman! — a Thai-language subscription/fixed-cost expense tracker. Static, no-build frontend (vanilla JS ES modules + hand-written CSS) backed by Supabase (Postgres + Auth). There is no bundler, no framework, no package.json scripts, and no test suite.
+Subman! — a Thai-language subscription/fixed-cost expense tracker. Static, no-build frontend (vanilla JS ES modules + hand-written CSS) backed by Supabase (Postgres + Auth). There is no bundler, no framework, and no test suite — the only tooling is a static dev server and ESLint.
 
 ## Running it locally
 
@@ -23,15 +23,18 @@ Supabase credentials (URL + anon key) live in `js/config.js`, hardcoded and poin
 
 ### Routing & app states
 
-`js/router.js` is a hand-rolled hash router and the composition root for three distinct states, chosen based on `store.session`:
+`js/router.js` is a hand-rolled hash router and the composition root for four distinct states, chosen based on `store.session`:
 
-- **Logged out, landing** (`js/pages/landing.js`) — marketing page at any hash other than `#/login`.
+- **Logged out, landing** (`js/pages/landing.js`) — marketing page at any hash other than `#/login`/`#/register`.
 - **Logged out, login** (`renderLogin`, inline in `router.js`) — shown at `#/login`.
+- **Logged out, register** (`renderRegister`, inline in `router.js`) — shown at `#/register`.
 - **Logged in, app shell** (`renderShell`, inline in `router.js`) — sidebar + header chrome, with `PAGES[hash]` swapped into `#view`.
 
-A `loggedOutView` flag tracks which of landing/login is currently mounted so the `hashchange` listener only re-renders on an actual state transition — in-page anchors on the landing page (`#features`, `#pricing`, etc.) change the hash but must **not** trigger a re-render, or the browser's native anchor-scroll breaks. Keep this distinction in mind when touching landing-page nav links.
+`loggedOutViewFor(hash)` maps a hash to `'landing' | 'login' | 'register'`, and a `loggedOutView` variable tracks which is currently mounted so the `hashchange` listener (and `renderLoggedOutView`) only re-render on an actual state transition — in-page anchors on the landing page (`#features`, `#pricing`, etc.) change the hash but must **not** trigger a re-render, or the browser's native anchor-scroll breaks. Keep this distinction in mind when touching landing-page nav links or adding another logged-out route.
 
-Authenticated pages (`js/pages/dashboard.js`, `expenses.js`, `subscriptions.js`, `reports.js`, `settings.js`) all export a single `async function render(container)` that the router calls into `#view` on every route change; `landing.js` instead exports `render(root)` and replaces the whole `#app` root. Icons are Lucide, injected as `data-lucide="name"` attributes and rasterized by calling `window.lucide.createIcons()` after every DOM swap (`refreshIcons()` in the router).
+Authenticated pages (`js/pages/dashboard.js`, `expenses.js`, `subscriptions.js`, `reports.js`, `settings.js`) all export a single `async function render(container)` that the router calls into `#view` on every route change; `landing.js` instead exports `render(root)` and replaces the whole `#app` root. Icons are Lucide, injected as `data-lucide="name"` attributes and rasterized by calling `window.lucide.createIcons()` after every DOM swap (`refreshIcons()` in the router) — an icon added via `innerHTML` without a following `refreshIcons()` call renders as an empty element.
+
+`renderLogin` and `renderRegister` share one visual structure (`.login-split` → `.login-hero` + `.login-panel > .login-card`, styled in `pages.css`'s Login section) — treat them as one system when changing either. Several controls on both screens are intentionally non-functional pending real backend support (Google OAuth sign-in/up, "ลืมรหัสผ่าน?", the register submit itself, and the terms/privacy text, which are styled spans, not links): they call `toast('...เร็วๆนี้')` instead of doing anything. This is the same "coming soon" pattern used for the Pro/Business pricing buttons (`comingSoon` flag in `landing.js`'s `PLANS`, rendered `disabled`). When asked to make one of these real, grep for `เร็วๆนี้` / `comingSoon` to find all the placeholder spots.
 
 ### State & data layer
 
@@ -55,6 +58,14 @@ Split by concern and loaded in this cascade order (see `index.html`): `tokens.cs
 ### Design-to-code (Figma)
 
 This project has previously been built out from Figma designs via the Figma MCP server (`mcp__figma__*`). When implementing a new Figma frame: pull design context, then adapt colors/text to the existing token and page-section conventions above rather than introducing raw hex values or a parallel styling system. Icon-shaped raster exports (checkmarks, bell, etc.) should be replaced with the project's existing Lucide icons rather than downloaded as images; only genuinely photographic/illustrative content (mockup screenshots, avatars, the mascot logo) should be downloaded into `assets/`.
+
+The mascot artwork exists in two crops in `assets/` — pick based on the render size, not by copying whatever a given Figma frame happens to use (Figma itself reuses one source image at wildly different scales):
+- `logo.png` — mascot only, no wordmark, transparent background. For small icon contexts (~28–48px: app-shell sidebar, browser favicon) where the full lockup would be illegible.
+- `logo-full.png` — full lockup (mascot + "Subman!" wordmark + tagline) baked into one image. For anywhere the mark renders large enough to read the wordmark (landing nav, login/register hero and card header) — pair it alone, not next to a redundant `<span>Subman!</span>`.
+
+### Auth model vs. this Figma file
+
+`supabase-schema.sql`/the original spec describe a **single-user, no-signup** app (one account, provisioned manually in the Supabase dashboard). The current Figma file nonetheless includes login *and* register screens, which have been implemented as real pages/UI per later product direction — but only email/password sign-in actually calls Supabase (`js/auth.js`'s `signIn`). Don't assume the presence of a `#/register` page means multi-tenant signup is live; check for an actual `supabase.auth.signUp()` call (there isn't one yet) before treating account creation as real.
 
 ### Data model (`supabase-schema.sql`)
 
