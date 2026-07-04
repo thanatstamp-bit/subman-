@@ -2,7 +2,7 @@
 import { store } from '../store.js';
 import { getExpenses, getTransactions } from '../api.js';
 import { monthlyEq, isTrialActive, daysUntil, countdownPillLabel, countdownColorVar, sumTransactionsForMonth } from '../logic.js';
-import { formatMoney, formatMonthlyEq, formatShortDate, formatMonthYear, toISODate, todayBangkok } from '../format.js';
+import { formatMoney, formatShortDate, formatMonthYear, toISODate, todayBangkok } from '../format.js';
 import { makeDoughnut } from '../ui/charts.js';
 
 const CAT_COLOR_VAR = {

@@ -10,6 +10,7 @@ import { render as renderExpenses } from './pages/expenses.js';
 import { render as renderSubscriptions } from './pages/subscriptions.js';
 import { render as renderReports } from './pages/reports.js';
 import { render as renderSettings } from './pages/settings.js';
+import { render as renderLandingPage } from './pages/landing.js';
 
 const NAV_ITEMS = [
   { hash: '#/dashboard', label: 'Dashboard', icon: 'layout-grid' },
@@ -46,12 +47,31 @@ function refreshIcons() {
   if (window.lucide) window.lucide.createIcons();
 }
 
+// ---------- Landing page ----------
+let loggedOutView = null;
+
+function renderLanding() {
+  loggedOutView = 'landing';
+  renderLandingPage(app);
+  refreshIcons();
+}
+
+function renderLoggedOutRoute() {
+  if (location.hash === '#/login') {
+    renderLogin();
+  } else {
+    renderLanding();
+  }
+}
+
 // ---------- Login screen ----------
 function renderLogin() {
+  loggedOutView = 'login';
   app.innerHTML = `
     <div class="login-screen">
       <div class="login-card">
-        <img src="assets/logo.svg" alt="Subman!" />
+        <a href="#/" class="btn-text" style="align-self:flex-start;">← กลับหน้าหลัก</a>
+        <img src="assets/logo.png" alt="Subman!" />
         <h1>เข้าสู่ระบบ</h1>
         <form id="login-form" novalidate>
           <div class="field">
@@ -81,7 +101,7 @@ function renderLogin() {
     try {
       await signIn(form.email.value.trim(), form.password.value);
       await boot();
-    } catch (err) {
+    } catch {
       errorEl.textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
       errorEl.style.display = 'block';
       submitBtn.disabled = false;
@@ -92,7 +112,6 @@ function renderLogin() {
 
 // ---------- App shell ----------
 function renderShell() {
-  const email = store.session?.user?.email || '';
   const initial = 'ธ';
 
   app.innerHTML = `
@@ -100,7 +119,7 @@ function renderShell() {
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="sidebar__logo-row">
-          <img src="assets/logo.svg" alt="" />
+          <img src="assets/logo.png" alt="" />
           <span class="sidebar__wordmark">Subman!</span>
         </div>
         <nav class="sidebar__nav" id="sidebar-nav">
@@ -154,7 +173,8 @@ function renderShell() {
   });
   document.getElementById('logout-btn').addEventListener('click', async () => {
     await signOut();
-    renderLogin();
+    location.hash = '#/';
+    renderLanding();
   });
 
   // Responsive sidebar overlay
@@ -213,12 +233,23 @@ async function renderRoute(hash) {
   refreshIcons();
 }
 
-window.addEventListener('hashchange', () => renderRoute(currentHash()));
+window.addEventListener('hashchange', () => {
+  if (!store.session) {
+    const wantsLogin = location.hash === '#/login';
+    if (wantsLogin && loggedOutView !== 'login') {
+      renderLogin();
+    } else if (!wantsLogin && loggedOutView !== 'landing') {
+      renderLanding();
+    }
+    return;
+  }
+  renderRoute(currentHash());
+});
 
 async function boot() {
   const session = await getSession();
   if (!session) {
-    renderLogin();
+    renderLoggedOutRoute();
     return;
   }
 
@@ -242,7 +273,8 @@ async function boot() {
 
 supabase.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_OUT') {
-    renderLogin();
+    location.hash = '#/';
+    renderLanding();
   }
 });
 

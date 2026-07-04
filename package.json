@@ -1,0 +1,15 @@
+{
+  "name": "subman",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "http-server -p 8765 -c-1",
+    "lint": "eslint js"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0",
+    "@eslint/js": "^9.19.0",
+    "globals": "^15.14.0",
+    "http-server": "^14.1.1"
+  }
+}

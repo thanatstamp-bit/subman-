@@ -67,6 +67,14 @@
 
   --shadow-card:  0 1px 2px rgb(138 20 118 / 0.05);
   --shadow-modal: 0 20px 50px rgb(138 20 118 / 0.18);
+
+  /* 4.5 Landing page — marketing site uses a slightly different brand pink than the app shell */
+  --landing-primary:      #D91A8B;
+  --landing-primary-dark: #B8156F;
+  --landing-text-heading: #1F111B;
+  --landing-text-muted:   #6B7280;
+  --landing-chart-purple: #8B5CF6;
+  --landing-chart-blue:   #3B82F6;
 }
 
 /* Dark-mode map — defined now, NOT wired to a theme switcher in v1 (light only) */
