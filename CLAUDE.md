@@ -40,11 +40,19 @@ Authenticated pages (`js/pages/dashboard.js`, `expenses.js`, `subscriptions.js`,
 
 - `js/store.js` — the only mutable global state (`session`, `settings`, `categories`). A plain object, no reactivity; pages just read from it after their own `await`.
 - `js/api.js` — the only module that talks to Supabase tables directly (expenses, categories, transactions, settings). All queries are scoped by `user_id`, matching the RLS policies in `supabase-schema.sql`.
-- `js/auth.js` — thin wrapper over `supabase.auth` (session/signIn/signOut).
+- `js/auth.js` — wrapper over `supabase.auth`: `signIn`/`signUp`/`signInWithGoogle`/`signOut`/`getSession`. See "Auth model" below for the signup story.
 - `js/logic.js` — pure business-rule functions with no I/O: currency conversion, monthly-equivalent cost, renewal-date advancing, trial-expiry conversion, countdown color/label buckets. Comments reference spec section numbers (e.g. `§6.5`) from an external spec doc that isn't part of this repo — treat them as historical breadcrumbs, not links to a file that exists here.
 - `js/format.js` — Thai/Buddhist-Era date formatting and money formatting. All "today" logic goes through `todayBangkok()` (Asia/Bangkok wall-clock date), not the browser's local timezone.
 
 `processRenewalsAndTrials` (`js/api.js`, called once from `boot()` in `router.js` after auth) is the important side-effecting flow: it converts expired trials to active billing, then walks each active expense's `next_renewal_date` forward through elapsed cycles, inserting one `transactions` row per cycle. `transactions` is an append-only log the app writes to itself — it powers all "actuals" numbers (Reports 12-month trend, dashboard month-over-month deltas) and should never be hand-edited or treated as user-editable data.
+
+### Shared UI utilities (`js/ui/`)
+
+Authenticated pages share four small, dependency-free modules rather than each rolling their own:
+- `modal.js` — `openExpenseModal({ expense, onSaved })`, the single add/edit expense form used from the header "เพิ่มรายการ" button and from every page's own row actions; pass an existing `expense` to edit, omit it to create.
+- `confirm.js` — `confirmDialog(message, { danger })`, a promise-based yes/no dialog for destructive actions (e.g. deleting an expense) in place of the browser's blocking `confirm()`.
+- `toast.js` — `toast(message, type)`, a bottom-right auto-dismissing stack (3s, max 3 visible).
+- `charts.js` — `makeDoughnut`/`makeBar` Chart.js factories pre-wired to the design tokens and Thai font; both destroy any prior Chart instance on the same `<canvas>` first, so re-rendering a page on route change doesn't leak chart instances.
 
 ### CSS structure
 
