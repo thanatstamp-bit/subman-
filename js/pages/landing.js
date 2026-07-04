@@ -88,7 +88,7 @@ export function render(root) {
         </nav>
         <div class="landing-nav__actions">
           <a class="landing-btn landing-btn--outline" href="#/login">เข้าสู่ระบบ</a>
-          <a class="landing-btn landing-btn--primary" href="#/login">สมัครสมาชิก</a>
+          <a class="landing-btn landing-btn--primary" href="#/register">สมัครสมาชิก</a>
         </div>
       </header>
 
@@ -99,7 +99,7 @@ export function render(root) {
           <p class="landing-hero__desc">หยุดเสียเงินให้กับบริการที่คุณไม่ได้ใช้ Subman! ช่วยคุณติดตามทุกบาท ทุกสตางค์ แจ้งเตือนก่อนหักเงิน และช่วยวางแผนงบประมาณรายเดือนของคุณ <strong>หยุดจ่ายให้กับสิ่งที่คุณไม่ได้ใช้</strong></p>
         </div>
         <div class="landing-hero__actions">
-          <a class="landing-btn landing-btn--primary" href="#/login">เริ่มติดตามเลยตอนนี้</a>
+          <a class="landing-btn landing-btn--primary" href="#/register">เริ่มติดตามเลยตอนนี้</a>
           <a class="landing-btn landing-btn--outline" href="#features">ชมวิดีโอสาธิต</a>
         </div>
         <div class="landing-hero__mockup">
@@ -183,7 +183,7 @@ export function render(root) {
               </div>
               ${p.comingSoon
                 ? `<button type="button" class="landing-btn ${p.featured ? 'landing-btn--inverse' : 'landing-btn--primary'}" disabled>เปิดใช้งานเร็วๆนี้</button>`
-                : `<a class="landing-btn ${p.featured ? 'landing-btn--inverse' : 'landing-btn--primary'}" href="#/login">เริ่มต้นใช้งาน</a>`}
+                : `<a class="landing-btn ${p.featured ? 'landing-btn--inverse' : 'landing-btn--primary'}" href="#/register">เริ่มต้นใช้งาน</a>`}
             </div>
           `).join('')}
         </div>
@@ -213,7 +213,7 @@ export function render(root) {
           <p class="landing-final-cta__desc">เข้าร่วมกับผู้ใช้กว่า 50,000 คนที่เริ่มประหยัดเงินกับ Subman!</p>
         </div>
         <div class="landing-final-cta__actions">
-          <a class="landing-btn landing-btn--inverse" href="#/login">เริ่มต้นใช้งานฟรี</a>
+          <a class="landing-btn landing-btn--inverse" href="#/register">เริ่มต้นใช้งานฟรี</a>
           <a class="landing-btn landing-btn--primary" href="#pricing">ดูแผนราคา</a>
         </div>
       </section>
