@@ -1,0 +1,84 @@
+/* ============================================================
+   Design tokens — the ONLY file allowed to contain hex colors.
+   ============================================================ */
+
+:root {
+  /* 4.1 Primitives — Pink Ramp */
+  --pink-50:  #FDF4FB;
+  --pink-100: #FBE8F7;
+  --pink-200: #F8D5F2;
+  --pink-300: #F5C2EC;
+  --pink-400: #F5B6E8;
+  --pink-500: #F5ABE5;  /* signature pink */
+  --pink-600: #E87DD8;
+  --pink-700: #D44DC0;
+  --pink-800: #B02FA5;  /* TODO: approximated — confirm exact value from Figma before final polish */
+  --pink-900: #8A1476;  /* deep plum */
+
+  /* 4.2 Semantic tokens */
+  --color-brand-primary:     var(--pink-500);
+  --color-brand-subtle:      var(--pink-200);
+  --color-brand-strong:      var(--pink-700);
+  --color-bg-brand:          var(--pink-50);
+  --color-bg-accent:         var(--pink-100);
+  --color-surface-pink:      var(--pink-200);
+  --color-border-brand:      var(--pink-300);
+  --color-text-brand:        var(--pink-700);
+  --color-text-on-brand:     var(--pink-50);
+  --color-interactive-hover: var(--pink-600);
+
+  /* 4.3 Supporting palette — neutrals */
+  --color-surface:        #FFFFFF;
+  --color-text-primary:   #3D3A41;
+  --color-text-secondary: #8A8494;
+  --color-border-soft:    var(--pink-100);
+
+  /* status */
+  --color-success: #1B9E4B;
+  --color-warning: #E07B00;
+  --color-danger:  #E11D48;
+
+  /* category accents */
+  --cat-purple:  #7C3AED;
+  --cat-orange:  #F97316;
+  --cat-teal:    #0D9488;
+  --cat-green:   #16A34A;
+  --cat-blue:    #2563EB;
+  --cat-magenta: #C026D3;
+
+  /* overlay colors (derived from brand plum, used for modal/scrim) */
+  --color-overlay-modal: rgb(138 20 118 / 0.25);
+  --color-overlay-scrim: rgb(0 0 0 / 0.45);
+
+  /* 4.4 Typography, spacing, radius, shadow */
+  --font-sans: 'Noto Sans Thai', system-ui, sans-serif;
+
+  --text-xs: 12px;  --text-sm: 13px;  --text-base: 14px;
+  --text-lg: 16px;  --text-xl: 20px;  --text-2xl: 24px;  --text-3xl: 28px;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  --shadow-card:  0 1px 2px rgb(138 20 118 / 0.05);
+  --shadow-modal: 0 20px 50px rgb(138 20 118 / 0.18);
+}
+
+/* Dark-mode map — defined now, NOT wired to a theme switcher in v1 (light only) */
+[data-theme="dark"] {
+  --color-brand-primary:     var(--pink-400);
+  --color-brand-subtle:      var(--pink-700);
+  --color-brand-strong:      var(--pink-300);
+  --color-bg-brand:          var(--pink-900);
+  --color-bg-accent:         var(--pink-800);
+  --color-surface-pink:      var(--pink-800);
+  --color-border-brand:      var(--pink-600);
+  --color-text-brand:        var(--pink-300);
+  --color-text-on-brand:     var(--pink-900);
+  --color-interactive-hover: var(--pink-400);
+}
