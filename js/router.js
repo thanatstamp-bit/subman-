@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { store } from './store.js';
-import { getSession, signIn, signOut } from './auth.js';
+import { getSession, signIn, signUp, signInWithGoogle, signOut } from './auth.js';
 import { bootstrapUser, getSettings, getCategories, processRenewalsAndTrials } from './api.js';
 import { toast } from './ui/toast.js';
 import { openExpenseModal } from './ui/modal.js';
@@ -171,8 +171,12 @@ function renderLogin() {
     refreshIcons();
   });
 
-  document.getElementById('google-btn').addEventListener('click', () => {
-    toast('เข้าสู่ระบบด้วย Google จะเปิดให้ใช้งานเร็วๆนี้');
+  document.getElementById('google-btn').addEventListener('click', async () => {
+    try {
+      await signInWithGoogle();
+    } catch {
+      toast('เข้าสู่ระบบด้วย Google ไม่สำเร็จ ลองอีกครั้ง', 'error');
+    }
   });
   document.getElementById('forgot-btn').addEventListener('click', () => {
     toast('ฟีเจอร์นี้จะเปิดให้ใช้งานเร็วๆนี้');
@@ -285,8 +289,12 @@ function renderRegister() {
   `;
   refreshIcons();
 
-  document.getElementById('google-btn').addEventListener('click', () => {
-    toast('ลงทะเบียนด้วย Google จะเปิดให้ใช้งานเร็วๆนี้');
+  document.getElementById('google-btn').addEventListener('click', async () => {
+    try {
+      await signInWithGoogle();
+    } catch {
+      toast('ลงทะเบียนด้วย Google ไม่สำเร็จ ลองอีกครั้ง', 'error');
+    }
   });
 
   document.querySelectorAll('.login-password-toggle').forEach((btn) => {
@@ -300,17 +308,55 @@ function renderRegister() {
   });
 
   const errorEl = document.getElementById('register-error');
-  document.getElementById('register-form').addEventListener('submit', (e) => {
+  const registerSubmitBtn = document.getElementById('register-submit');
+
+  function showRegisterError(msg) {
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+  }
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     errorEl.style.display = 'none';
+
+    const fullname = document.getElementById('fullname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
     const passwordConfirm = document.getElementById('reg-password-confirm').value;
-    if (password !== passwordConfirm) {
-      errorEl.textContent = 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
-      errorEl.style.display = 'block';
+    const termsAccepted = document.getElementById('terms').checked;
+
+    if (!fullname || !email || !password) {
+      showRegisterError('กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
-    toast('การสมัครสมาชิกจะเปิดให้ใช้งานเร็วๆนี้');
+    if (password.length < 6) {
+      showRegisterError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      showRegisterError('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+      return;
+    }
+    if (!termsAccepted) {
+      showRegisterError('กรุณายอมรับข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัว');
+      return;
+    }
+
+    registerSubmitBtn.disabled = true;
+    registerSubmitBtn.innerHTML = `<span class="btn-spinner"></span> สมัครสมาชิก`;
+    try {
+      const { session } = await signUp(email, password, fullname);
+      if (session) {
+        await boot();
+      } else {
+        toast('สมัครสมาชิกสำเร็จ กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');
+        location.hash = '#/login';
+      }
+    } catch (err) {
+      showRegisterError(err.message === 'User already registered' ? 'อีเมลนี้ถูกใช้งานแล้ว' : 'สมัครสมาชิกไม่สำเร็จ ลองอีกครั้ง');
+      registerSubmitBtn.disabled = false;
+      registerSubmitBtn.textContent = 'สมัครสมาชิก';
+    }
   });
 }
 
