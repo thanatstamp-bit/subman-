@@ -438,6 +438,13 @@
   max-height: none;
 }
 
+.modal-panel > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -467,6 +474,8 @@
 .modal-close:hover { background: var(--color-bg-accent); }
 
 .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: var(--space-6);
   overflow-y: auto;
   display: flex;
