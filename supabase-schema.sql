@@ -53,8 +53,14 @@ create table settings (
   remind_renewal_enabled boolean not null default true,
   remind_before_days int not null default 7,
   remind_trial_enabled boolean not null default false,
-  trial_remind_days int not null default 3
+  trial_remind_days int not null default 3,
+  line_notify_enabled boolean not null default false
 );
+
+-- Migration for existing projects (run once if the settings table predates the
+-- line_notify_enabled column above):
+--   alter table settings
+--     add column if not exists line_notify_enabled boolean not null default false;
 
 -- RLS
 alter table categories   enable row level security;

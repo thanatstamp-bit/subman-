@@ -1,6 +1,7 @@
 // ตั้งค่า / Settings (§8.5)
 import { store } from '../store.js';
 import { updateSettings, getCategories, createCategory, updateCategory, deleteCategory } from '../api.js';
+import { updateProfile, updatePassword } from '../auth.js';
 import { toast } from '../ui/toast.js';
 import { confirmDialog } from '../ui/confirm.js';
 
@@ -13,8 +14,10 @@ const CAT_COLOR_VAR = {
 const REMIND_DAY_OPTIONS = [3, 5, 7, 14];
 
 export async function render(container) {
-  const userId = store.session.user.id;
+  const user = store.session.user;
+  const userId = user.id;
   const settings = store.settings;
+  const isEmailUser = (user.app_metadata?.provider || 'email') === 'email';
   const state = { editingCategoryId: null, addingNew: false };
 
   function categoryMiniForm(cat) {
@@ -49,6 +52,41 @@ export async function render(container) {
 
   function renderBody() {
     container.innerHTML = `
+      <div class="card settings-section">
+        <h2 class="settings-section__title">บัญชีผู้ใช้</h2>
+        <div class="field">
+          <label class="field__label" for="account-name">ชื่อ-นามสกุล</label>
+          <div class="field-row" style="align-items:flex-start;">
+            <input class="input" id="account-name" value="${(user.user_metadata?.full_name || '').replace(/"/g, '&quot;')}" placeholder="เช่น สมชาย ใจดี" style="flex:1;" />
+            <button type="button" class="btn-primary" id="account-name-save">บันทึก</button>
+          </div>
+          <p class="field__error" id="account-name-error" style="display:none;"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="account-email">อีเมล</label>
+          <input class="input" id="account-email" value="${user.email || ''}" disabled />
+        </div>
+        <hr class="settings-divider" />
+        ${isEmailUser ? `
+        <div class="field">
+          <label class="field__label" for="account-password">เปลี่ยนรหัสผ่าน</label>
+          <input class="input" id="account-password" type="password" placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)" autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="account-password-confirm">ยืนยันรหัสผ่านใหม่</label>
+          <div class="field-row" style="align-items:flex-start;">
+            <input class="input" id="account-password-confirm" type="password" placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง" autocomplete="new-password" style="flex:1;" />
+            <button type="button" class="btn-outline" id="account-password-save">เปลี่ยนรหัสผ่าน</button>
+          </div>
+          <p class="field__error" id="account-password-error" style="display:none;"></p>
+        </div>
+        ` : `
+        <p style="color: var(--color-text-secondary); font-size: var(--text-sm);">
+          บัญชีนี้เข้าสู่ระบบด้วยผู้ให้บริการภายนอก จึงไม่มีรหัสผ่านให้เปลี่ยนที่นี่
+        </p>
+        `}
+      </div>
+
       <div class="card settings-section">
         <h2 class="settings-section__title">สกุลเงินหลัก</h2>
         <div class="settings-row">
@@ -105,7 +143,100 @@ export async function render(container) {
           </label>
         </div>
       </div>
+
+      <div class="card settings-section">
+        <h2 class="settings-section__title">การแจ้งเตือนผ่าน LINE</h2>
+        <div class="settings-row">
+          <div class="line-status">
+            <span class="line-status__icon"><i data-lucide="message-circle"></i></span>
+            <div>
+              <div style="font-weight:600;">ยังไม่ได้เชื่อมต่อ</div>
+              <div style="font-size: var(--text-xs); color: var(--color-text-secondary);">เชื่อมบัญชี LINE เพื่อรับการแจ้งเตือนก่อนครบกำหนด</div>
+            </div>
+          </div>
+          <button type="button" class="btn-outline" id="line-connect-btn">เชื่อมบัญชี LINE</button>
+        </div>
+        <hr class="settings-divider" />
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;">แจ้งเตือนผ่าน LINE</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-secondary);">จะเริ่มทำงานเมื่อเชื่อมบัญชีและระบบส่งพร้อมใช้งาน</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="line-notify-toggle" ${settings.line_notify_enabled ? 'checked' : ''} />
+            <span class="toggle__track"></span>
+          </label>
+        </div>
+      </div>
     `;
+
+    // Account — name
+    container.querySelector('#account-name-save').addEventListener('click', async () => {
+      const errEl = document.getElementById('account-name-error');
+      const name = document.getElementById('account-name').value.trim();
+      if (!name) {
+        errEl.textContent = 'กรุณาระบุชื่อ-นามสกุล';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      try {
+        await updateProfile({ fullName: name });
+        // Reflect immediately in the sidebar — the shell isn't re-rendered on route change.
+        const nameEl = document.querySelector('.sidebar__user-name');
+        const avatarEl = document.querySelector('.sidebar__avatar');
+        if (nameEl) nameEl.textContent = name;
+        if (avatarEl) avatarEl.textContent = Array.from(name)[0]?.toUpperCase() || '?';
+        toast('บันทึกชื่อแล้ว');
+      } catch (err) {
+        console.error(err);
+        toast('เกิดข้อผิดพลาด ลองอีกครั้ง', 'error');
+      }
+    });
+
+    // Account — password (email accounts only)
+    const passwordSaveBtn = container.querySelector('#account-password-save');
+    if (passwordSaveBtn) {
+      passwordSaveBtn.addEventListener('click', async () => {
+        const errEl = document.getElementById('account-password-error');
+        const pw = document.getElementById('account-password').value;
+        const confirm = document.getElementById('account-password-confirm').value;
+        if (pw.length < 6) {
+          errEl.textContent = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (pw !== confirm) {
+          errEl.textContent = 'รหัสผ่านและการยืนยันไม่ตรงกัน';
+          errEl.style.display = 'block';
+          return;
+        }
+        errEl.style.display = 'none';
+        try {
+          await updatePassword(pw);
+          document.getElementById('account-password').value = '';
+          document.getElementById('account-password-confirm').value = '';
+          toast('เปลี่ยนรหัสผ่านแล้ว');
+        } catch (err) {
+          console.error(err);
+          toast('เกิดข้อผิดพลาด ลองอีกครั้ง', 'error');
+        }
+      });
+    }
+
+    // LINE
+    container.querySelector('#line-connect-btn').addEventListener('click', () => {
+      toast('การเชื่อมบัญชี LINE จะเปิดให้ใช้งานเร็วๆนี้');
+    });
+    container.querySelector('#line-notify-toggle').addEventListener('change', async (e) => {
+      try {
+        Object.assign(settings, await updateSettings(userId, { line_notify_enabled: e.target.checked }));
+        toast('บันทึกแล้ว');
+      } catch (err) {
+        console.error(err);
+        toast('เกิดข้อผิดพลาด ลองอีกครั้ง', 'error');
+      }
+    });
 
     // Currency radios
     container.querySelectorAll('input[name="primary-currency"]').forEach(radio => {

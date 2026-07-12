@@ -361,8 +361,20 @@ function renderRegister() {
 }
 
 // ---------- App shell ----------
+function userDisplayName() {
+  const user = store.session?.user;
+  if (!user) return '';
+  return user.user_metadata?.full_name?.trim() || user.email?.split('@')[0] || 'ผู้ใช้';
+}
+
+function userInitial(name) {
+  return Array.from(name.trim())[0]?.toUpperCase() || '?';
+}
+
 function renderShell() {
-  const initial = 'ธ';
+  const name = userDisplayName();
+  const initial = userInitial(name);
+  const email = store.session?.user?.email || '';
 
   app.innerHTML = `
     <div class="scrim" id="scrim"></div>
@@ -384,8 +396,8 @@ function renderShell() {
           <button type="button" class="sidebar__user-row" id="user-menu-btn">
             <span class="sidebar__avatar">${initial}</span>
             <span>
-              <div class="sidebar__user-name">ธนกฤต</div>
-              <div class="sidebar__user-caption">Premium Plan</div>
+              <div class="sidebar__user-name">${name}</div>
+              <div class="sidebar__user-caption">${email}</div>
             </span>
           </button>
           <div class="sidebar__user-menu" id="user-menu" style="display:none;">

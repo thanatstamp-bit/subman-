@@ -639,6 +639,24 @@
   border-color: var(--color-text-brand);
 }
 
+.line-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.line-status__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-accent);
+  color: var(--color-text-brand);
+  flex-shrink: 0;
+}
+
 /* ---------- Reports ---------- */
 .tabs {
   display: inline-flex;
